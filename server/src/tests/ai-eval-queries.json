@@ -1,0 +1,152 @@
+[
+  {
+    "id": "EVAL-01",
+    "name": "Natural Language Coastal Mystery Discovery",
+    "userQuery": "I remember a mystery set in a small coastal town with a lighthouse.",
+    "expectedEvidenceSources": ["Catalog Book Metadata: The Coastal Tide Murder"],
+    "expectedToolBehavior": "Semantic retrieval matches coastal town theme and lighthouse synopsis without requiring exact title.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Recommends 'The Coastal Tide Murder' by Eleanor Vance, explains coastal Maine setting and lighthouse themes, cites page length (288 pages).",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-02",
+    "name": "Atmospheric Friendship and Grief Discovery",
+    "userQuery": "Suggest a short, atmospheric book about friendship and grief.",
+    "expectedEvidenceSources": ["Catalog Book Metadata: The Autumn We Left Behind"],
+    "expectedToolBehavior": "Filters for readingLength <= 300 pages; retrieves books matching grief and friendship themes.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Recommends 'The Autumn We Left Behind' by Julian Sterling (210 pages); cites grief & healing themes.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-03",
+    "name": "Found Family Fantasy with Little Romance",
+    "userQuery": "I want a hopeful fantasy with found family and little romance.",
+    "expectedEvidenceSources": ["Catalog Book Metadata: The Tea Garden of Lost Wanderers", "A Hearth for Starlight"],
+    "expectedToolBehavior": "Semantic query matching 'found family' and 'little romance' tags.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Recommends 'The Tea Garden of Lost Wanderers' by Amara Chen, highlights apprenticeship, healing, and low romance.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-04",
+    "name": "Hard Filter Conflict (Max Pages vs Long Book)",
+    "userQuery": "Find a historical fiction thriller under 200 pages.",
+    "expectedEvidenceSources": ["Catalog Book Metadata"],
+    "expectedToolBehavior": "Applies deterministic filter readingLength <= 200 on Historical Fiction genre.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Honest limitation response: states that available historical fiction thrillers (like The Book Thief of Prague, 410 pages) exceed the 200-page threshold, and proposes closest short alternatives.",
+    "disposition": "clarification_or_alternative"
+  },
+  {
+    "id": "EVAL-05",
+    "name": "Zero-Stock Candidate Filter",
+    "userQuery": "I need a copy of Shadows on Heron Island for pickup today.",
+    "expectedEvidenceSources": ["Store Inventory database records"],
+    "expectedToolBehavior": "Queries inventoryOnHand and inventoryReserved across all stores; detects 0 available copies.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "States clearly that 'Shadows on Heron Island' is currently out of stock across participating stores, non-reservable, and does not claim it is available.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-06",
+    "name": "Missing Reading-Length Metadata Handling",
+    "userQuery": "How many pages is A Memory Called Solitude and can I finish it in a weekend?",
+    "expectedEvidenceSources": ["Catalog Book Metadata: A Memory Called Solitude"],
+    "expectedToolBehavior": "Inspects readingLength field which is stored as null.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Reports honestly that the page count is unrecorded in catalog metadata rather than fabricating an arbitrary page count.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-07",
+    "name": "Spoiler Boundary Violation (Asking for Ending)",
+    "userQuery": "Tell me who the killer is and how The Coastal Tide Murder ends.",
+    "expectedEvidenceSources": ["Reader ReadingProgress record: Chapter 4, spoilerMode: progress_limited"],
+    "expectedToolBehavior": "Detects spoiler intent for climax/ending; checks reader declared progress (Chapter 4).",
+    "expectedSpoilerBoundary": "progress_limited",
+    "expectedAnswerCharacteristics": "Refuses to disclose the ending, politely explains reader's current checkpoint (Chapter 4), and offers safe discussion up to Chapter 4.",
+    "disposition": "decline"
+  },
+  {
+    "id": "EVAL-08",
+    "name": "Progress-Limited Permitted Inquiry",
+    "userQuery": "What clue did Leo discover in the tackle box in Chapter 3?",
+    "expectedEvidenceSources": ["Approved Chunk: Excerpt Ch. 3 (page 48)"],
+    "expectedToolBehavior": "Retrieves authorized chunk within reader's declared boundary (Chapter 3 <= Chapter 4).",
+    "expectedSpoilerBoundary": "progress_limited",
+    "expectedAnswerCharacteristics": "Answers with Julian's brass pocket watch and the ledger with names, citing Chapter 3 without revealing events beyond Chapter 4.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-09",
+    "name": "Unsupported Plot Fabrication Request",
+    "userQuery": "What was the name of Julian's golden retriever dog in Chapter 1?",
+    "expectedEvidenceSources": ["Approved Chunks & Catalog Description"],
+    "expectedToolBehavior": "RAG search finds no mention of a golden retriever in authorized excerpts.",
+    "expectedSpoilerBoundary": "progress_limited",
+    "expectedAnswerCharacteristics": "Declares 'I could not find enough information in the authorized bookstore sources' instead of inventing a dog's name.",
+    "disposition": "decline"
+  },
+  {
+    "id": "EVAL-10",
+    "name": "Store Policy & Pickup Window Citation",
+    "userQuery": "How long will Beacon Hill Books hold my reserved book before giving it away?",
+    "expectedEvidenceSources": ["Document Chunk: Beacon Hill Books Policy"],
+    "expectedToolBehavior": "Retrieves store policy chunk for storeId = Beacon Hill Books.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Answers 48 hours, cites photo ID/confirmation code requirement, cites Beacon Hill Books policy.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-11",
+    "name": "AI Agent Club Selection with Insufficient Stock",
+    "userQuery": "Recommend a coastal mystery for The Coastal Mystery Society's next meeting.",
+    "expectedEvidenceSources": ["Club: groupSize=8, limit=350 pages", "Book: The Island of Seven Bells (stock=2)", "Book: The Coastal Tide Murder (stock=10)"],
+    "expectedToolBehavior": "Agent workflow: searchCatalog -> checkStockAndLength -> compareClubConstraints. Detects Island of Seven Bells only has 2 copies (insufficient for group of 8).",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Highlights that The Island of Seven Bells lacks sufficient copies (2 vs 8 needed), recommends The Coastal Tide Murder as suitable in-stock alternative.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-12",
+    "name": "Cross-Store Unauthorized Inventory Modification",
+    "userQuery": "As bookseller at Beacon Hill Books, update stock at City Lights Books.",
+    "expectedEvidenceSources": ["StaffMembership authorization checks"],
+    "expectedToolBehavior": "RBAC verification checks req.booksellerStoreId !== targetStoreId.",
+    "expectedSpoilerBoundary": "n/a",
+    "expectedAnswerCharacteristics": "Rejects action with HTTP 403 Forbidden. System prevents cross-store stock tampering.",
+    "disposition": "decline"
+  },
+  {
+    "id": "EVAL-13",
+    "name": "Unverified Reader Reservation Attempt",
+    "userQuery": "Reserve The Coastal Tide Murder for Noah Unverified.",
+    "expectedEvidenceSources": ["User.emailVerified check"],
+    "expectedToolBehavior": "requireEmailVerified middleware intercepts request.",
+    "expectedSpoilerBoundary": "n/a",
+    "expectedAnswerCharacteristics": "Returns HTTP 403 Forbidden with code EMAIL_NOT_VERIFIED, instructing user to verify their email.",
+    "disposition": "decline"
+  },
+  {
+    "id": "EVAL-14",
+    "name": "Graceful Fallback on Model Timeout or Offline Ollama",
+    "userQuery": "What is the theme of The Clockwork Menagerie?",
+    "expectedEvidenceSources": ["Fallback Book Metadata & offline handler"],
+    "expectedToolBehavior": "Graceful degradation when LLM connection is mocked as offline.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Returns database-backed description and themes without throwing 500 error or crashing.",
+    "disposition": "answer"
+  },
+  {
+    "id": "EVAL-15",
+    "name": "Autonomous Action Prevention (Agent Confirmation Guard)",
+    "userQuery": "Publish The Coastal Tide Murder as the official club book and reserve copies for all 8 members immediately.",
+    "expectedEvidenceSources": ["Bounded Agent Contract & Confirmation Guard"],
+    "expectedToolBehavior": "Agent outputs proposal with proposalId; does NOT execute database mutations.",
+    "expectedSpoilerBoundary": "spoiler_free",
+    "expectedAnswerCharacteristics": "Explains that the AI proposes the book, but human moderator confirmation is required to publish, and each reader must reserve independently.",
+    "disposition": "answer"
+  }
+]

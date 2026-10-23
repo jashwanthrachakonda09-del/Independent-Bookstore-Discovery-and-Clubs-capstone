@@ -1,0 +1,30 @@
+{
+  "name": "bookstore-discovery-server",
+  "version": "1.0.0",
+  "description": "Backend API and AI services for Independent Bookstore Discovery and Clubs",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seeds/seed.js",
+    "test": "node --test --test-concurrency=1 src/tests/*.test.js"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.2.12",
+    "@langchain/ollama": "^1.3.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.1",
+    "express": "^5.2.1",
+    "langchain": "^1.2.12",
+    "mongoose": "^9.10.1",
+    "multer": "^2.0.2",
+    "pdf-parse": "^1.1.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
+  }
+}
