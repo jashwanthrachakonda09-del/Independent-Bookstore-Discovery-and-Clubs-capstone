@@ -1,0 +1,272 @@
+{
+  "info": {
+    "name": "The Independent Shelf API Collection",
+    "description": "Comprehensive Postman collection for testing all endpoints of The Independent Shelf backend application.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Reader",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Reader\",\n  \"email\": \"jane.reader@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/register" }
+          }
+        },
+        {
+          "name": "Login Reader",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.sessionToken) {",
+                  "  pm.collectionVariables.set('authToken', json.data.sessionToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"reader@indiebooks.demo\",\n  \"password\": \"ReaderPass123!\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/auth/login" }
+          }
+        },
+        {
+          "name": "Get Current User Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/logout" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Books & Thematic Discovery",
+      "item": [
+        {
+          "name": "Thematic Search (Natural Language)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/books?query=cozy%20tea%20shop%20found%20family&inStockOnly=true"
+            }
+          }
+        },
+        {
+          "name": "Filter by Genre & Max Length",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/books?genre=Mystery&maxReadingLength=300"
+            }
+          }
+        },
+        {
+          "name": "Get Book by ID with Local Stock",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/books/:bookId",
+              "variable": [{ "key": "bookId", "value": "replace-with-book-id" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Create Reservation Hold",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"storeId\": \"replace-with-store-id\",\n  \"quantity\": 1,\n  \"format\": \"Paperback\",\n  \"condition\": \"New\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/books/:bookId/reservations",
+              "variable": [{ "key": "bookId", "value": "replace-with-book-id" }]
+            }
+          }
+        },
+        {
+          "name": "List User Reservations",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/reservations" }
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Schedule conflict\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reservations/:id/cancel",
+              "variable": [{ "key": "id", "value": "replace-with-res-id" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reading Clubs & AI Agent",
+      "item": [
+        {
+          "name": "List Clubs",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/clubs" }
+          }
+        },
+        {
+          "name": "Get Club Details",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/clubs/:id",
+              "variable": [{ "key": "id", "value": "replace-with-club-id" }]
+            }
+          }
+        },
+        {
+          "name": "Get Discussions with Viewer Spoiler Masking",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/clubs/:id/discussions",
+              "variable": [{ "key": "id", "value": "replace-with-club-id" }]
+            }
+          }
+        },
+        {
+          "name": "Post Discussion with Chapter Spoiler Tag",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"The mystery unraveled when the clock struck midnight!\",\n  \"hasSpoilers\": true,\n  \"spoilerChapter\": 6\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clubs/:id/discussions",
+              "variable": [{ "key": "id", "value": "replace-with-club-id" }]
+            }
+          }
+        },
+        {
+          "name": "Run Bounded 3-Tool AI Book Selection Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"Find a cozy mystery under 350 pages with good local bookstore stock for our circle.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clubs/:id/book-selection",
+              "variable": [{ "key": "id", "value": "replace-with-club-id" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Spoiler-Safe Book Chat (RAG)",
+      "item": [
+        {
+          "name": "Ask Question with Spoiler Protection",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"replace-with-book-id\",\n  \"message\": \"What are the central philosophical themes in this novel?\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/book-chat" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin & Health",
+      "item": [
+        {
+          "name": "System Health & AI Models",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/system-health" }
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+            "url": { "raw": "{{baseUrl}}/admin/audit-logs?limit=50" }
+          }
+        }
+      ]
+    }
+  ]
+}
